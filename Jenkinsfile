@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'node:6-alpine'
+            image 'node:current-alpine'
             args '-p 3000:3000' 
         }
     }
@@ -35,12 +35,10 @@ pipeline {
 
         stage('Integration test') {
             steps {
-                
-                // Integration test
-                sh 'echo "Integration test"'
 
                 app.inside {            
-                    sh 'echo "Tests passed"'        
+                    // Start integration test, when app is running well.
+                    sh 'echo "Integration test"'
                 }
             }
 
@@ -64,8 +62,57 @@ pipeline {
                         app.push("latest")        
                     }
                 }
+
             }
         }
 
+
+        stage('Release') {
+            // if it happened on the master branch (on GitHub "master" branch called "main")
+            when {
+                branch 'main'
+            }
+
+            steps {
+                //Push Docker image to DockerHub
+                docker.withRegistry('https://registry.hub.docker.com', 'git') {
+                    // Mark image as a latest.
+                    app.push("latest")
+                
+            }
+        }
+
+        // Notify user via e-mail about the job state after the run.
+        post {   
+            success {  
+                notifyOnSuccessful()  
+            }
+            // "Unsuccessful" is included any state, except the success.
+            // When it is too much, you can able to use "failure" keyword
+            unsuccessful {  
+                notifyOnFailure()
+            }    
+        }  
+
     }
+}
+
+def notifyOnSuccessful() {
+   // Send email to user
+  emailext (
+      subject: "Build was successsful: '${env.JOB_NAME}  [${env.BUILD_NUMBER}]'",
+      body: """<p>Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+        <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+      recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+    )
+}
+
+def notifyOnFailure() {
+   // Send email to user
+  emailext (
+      subject: "Build Failed! '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+      body: """<p>Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+        <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
+      recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+    )
 }
