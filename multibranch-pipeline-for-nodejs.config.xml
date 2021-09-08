@@ -1,0 +1,89 @@
+org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject plugin="workflow-multibranch@2.26">
+<actions/>
+<description>Test repo</description>
+<properties>
+<com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider_-FolderCredentialsProperty plugin="cloudbees-folder@6.16">
+<domainCredentialsMap class="hudson.util.CopyOnWriteMap$Hash">
+<entry>
+<com.cloudbees.plugins.credentials.domains.Domain plugin="credentials@2.5">
+<specifications/>
+</com.cloudbees.plugins.credentials.domains.Domain>
+<java.util.concurrent.CopyOnWriteArrayList>
+<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl plugin="credentials@2.5">
+<id>GitHub</id>
+<description>GitHub access</description>
+<username>kallaics82@gmail.com</username>
+<password>{AQAAABAAAAAwtbWgBV8FcwdToQK043q2RpaTI+SrH+OqluQTRvyDUhw9/8WfKNbA6cMDqUqDARManPaOW0EDmBrM/N71LqcKfg==}</password>
+<usernameSecret>true</usernameSecret>
+</com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>
+<com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl plugin="credentials@2.5">
+<id>c608d2c8-b30c-4a86-96ff-6e70728897be</id>
+<description>Docker Hub - kallaics82</description>
+<username>kallaics82</username>
+<password>{AQAAABAAAAAQqzWvqIbCq1bgTMpkTDHvx/GW7gvbhouoCjJhky0y92w=}</password>
+<usernameSecret>true</usernameSecret>
+</com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl>
+</java.util.concurrent.CopyOnWriteArrayList>
+</entry>
+</domainCredentialsMap>
+</com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider_-FolderCredentialsProperty>
+<org.jenkinsci.plugins.docker.workflow.declarative.FolderConfig plugin="docker-workflow@1.26">
+<dockerLabel/>
+<registry plugin="docker-commons@1.17">
+<url>https://registry.hub.docker.com/</url>
+<credentialsId>c608d2c8-b30c-4a86-96ff-6e70728897be</credentialsId>
+</registry>
+</org.jenkinsci.plugins.docker.workflow.declarative.FolderConfig>
+</properties>
+<folderViews class="jenkins.branch.MultiBranchProjectViewHolder" plugin="branch-api@2.6.5">
+<owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+</folderViews>
+<healthMetrics/>
+<icon class="jenkins.branch.MetadataActionFolderIcon" plugin="branch-api@2.6.5">
+<owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+</icon>
+<orphanedItemStrategy class="com.cloudbees.hudson.plugins.folder.computed.DefaultOrphanedItemStrategy" plugin="cloudbees-folder@6.16">
+<pruneDeadBranches>true</pruneDeadBranches>
+<daysToKeep>365</daysToKeep>
+<numToKeep>10</numToKeep>
+</orphanedItemStrategy>
+<triggers/>
+<disabled>false</disabled>
+<sources class="jenkins.branch.MultiBranchProject$BranchSourceList" plugin="branch-api@2.6.5">
+<data>
+<jenkins.branch.BranchSource>
+<source class="org.jenkinsci.plugins.github_branch_source.GitHubSCMSource" plugin="github-branch-source@2.11.2">
+<id>4cd2d970-642f-4a7c-a123-8aec81d50576</id>
+<apiUri>https://api.github.com</apiUri>
+<credentialsId>GitHub</credentialsId>
+<repoOwner>kallaics</repoOwner>
+<repository>nodejs-test</repository>
+<repositoryUrl>https://github.com/kallaics/nodejs-test.git</repositoryUrl>
+<traits>
+<org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
+<strategyId>2</strategyId>
+</org.jenkinsci.plugins.github__branch__source.BranchDiscoveryTrait>
+<org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
+<strategyId>1</strategyId>
+</org.jenkinsci.plugins.github__branch__source.OriginPullRequestDiscoveryTrait>
+<org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait>
+<strategyId>1</strategyId>
+<trust class="org.jenkinsci.plugins.github_branch_source.ForkPullRequestDiscoveryTrait$TrustPermission"/>
+</org.jenkinsci.plugins.github__branch__source.ForkPullRequestDiscoveryTrait>
+<jenkins.scm.impl.trait.RegexSCMHeadFilterTrait plugin="scm-api@2.6.5">
+<regex>(main|development|release.*|feature.*|bugfix.*)</regex>
+</jenkins.scm.impl.trait.RegexSCMHeadFilterTrait>
+</traits>
+</source>
+<strategy class="jenkins.branch.DefaultBranchPropertyStrategy">
+<properties class="empty-list"/>
+</strategy>
+</jenkins.branch.BranchSource>
+</data>
+<owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+</sources>
+<factory class="org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory">
+<owner class="org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject" reference="../.."/>
+<scriptPath>Jenkinsfile</scriptPath>
+</factory>
+</org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject>
