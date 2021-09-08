@@ -21,24 +21,27 @@ pipeline {
         stage('Build') {
             
             agent {
-                    docker {
-                        image 'docker/dind'
-                        args '-p 3000:3000' 
-                    }
+                docker {
+                    image 'docker/dind'
+                    args '-v /var/run/docker/docker.sock:/var/run/docker/docker.sock' 
                 }
+            }
 
             steps {
                 // Build a Docker container with the Node.JS code
-                app = docker.build("kallaics82/nodejs-test")
+                script {
+                    app = docker.build("kallaics82/nodejs-test")
+                }
             }
         }
 
         stage('Integration test') {
             steps {
-
-                app.inside {            
-                    // Start integration test, when app is running well.
-                    sh 'echo "Integration test"'
+                script {
+                    app.inside {            
+                        // Start integration test, when app is running well.
+                        sh 'echo "Integration test"'
+                    }
                 }
             }
 
@@ -54,12 +57,9 @@ pipeline {
                         reportName: 'RCov Report'
                     ]
 
-                    //Push Docker image to DockerHub
-                    docker.withRegistry('https://registry.hub.docker.com', 'git') {
-                        // Push the image with the build number to the repository
+                    script {
+                        //Push Docker image to local registry
                         app.push("${env.BUILD_NUMBER}")
-                        // Mark image as a latest.
-                        app.push("latest")        
                     }
                 }
 
@@ -75,26 +75,29 @@ pipeline {
 
             steps {
                 //Push Docker image to DockerHub
-                docker.withRegistry('https://registry.hub.docker.com', 'git') {
-                    // Mark image as a latest.
-                    app.push("latest")
-                
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'Docker Hub - kallaics82') {
+                        // Push docker image with a build number.
+                        app.push("${env.BUILD_NUMBER}")
+                        // Push image with a "latest" tag.
+                        app.push("latest")    
+                    }
+                }
             }
         }
+    }
 
         // Notify user via e-mail about the job state after the run.
-        post {   
-            success {  
-                notifyOnSuccessful()  
-            }
-            // "Unsuccessful" is included any state, except the success.
-            // When it is too much, you can able to use "failure" keyword
-            unsuccessful {  
-                notifyOnFailure()
-            }    
-        }  
-
-    }
+    post {   
+        success {  
+            notifyOnSuccessful()  
+        }
+        // "Unsuccessful" is included any state, except the success.
+        // When it is too much, you can able to use "failure" keyword
+        unsuccessful {  
+            notifyOnFailure()
+        }    
+    }  
 }
 
 def notifyOnSuccessful() {
