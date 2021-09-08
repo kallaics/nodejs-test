@@ -9,7 +9,7 @@ ENV JENKINS_URL http://127.0.0.1:8080
 ENV CLEAN_WORKING_DIR false
 
 # Install plugins
-RUN /usr/local/bin/install-plugins.sh git matrix-auth workflow-aggregator docker-workflow blueocean credentials-binding docker-plugin docker-workflow docker-build-step
+RUN /usr/local/bin/install-plugins.sh git matrix-auth workflow-aggregator docker-workflow blueocean credentials-binding docker-plugin docker-workflow docker-build-step email-ext
 
 # Disable first run wizzard (will be done by Groovy script)
 ENV JAVA_OPTS -Djenkins.install.runSetupWizard=false
