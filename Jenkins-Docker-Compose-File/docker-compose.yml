@@ -2,7 +2,7 @@
 # for test purpose only!
 services:
   jenkins:
-    image: kallaics82/jenkins:v1
+    image: jenkins:v1
     hostname: jenkins
     privileged: true
     ports:
