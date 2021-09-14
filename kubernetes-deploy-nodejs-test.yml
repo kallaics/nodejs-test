@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-test
+  labels:
+    app: nodejs-test
+spec:
+  ports:
+  - port: 3000
+    name: nodejs-test
+  clusterIP: None
+  selector:
+    app: nodejs-test
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nodejs-test
+spec:
+  replicas: 3
+  selector:
+    app: nodejs-test
+  template:
+    metadata:
+      name: nodejs-test
+      labels:
+        app: nodejs-test
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nodejs-test
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+        - image: kallaics82/nodejs-code:v1
+          name: nodejs-test
+          ports:
+          - containerPort: 3000
+            name: nodejs-test
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nodejs-test
+spec:
+  scaleTargetRef:
+    apiVersion: v1
+    kind: ReplicationController
+    name: nodejs-test
+  minReplicas: 3
+  maxReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: AverageValue
+        averageValue: 100Mi
