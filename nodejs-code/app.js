@@ -1,6 +1,8 @@
+const TXT = process.env.TXT || 'Hello world!';
+
 let http = require('http')
 server = http.createServer(function(request, response) {
-    response.write('Hello World')
+    response.write(TXT)
     response.end()
 })
 

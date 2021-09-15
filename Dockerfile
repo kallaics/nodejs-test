@@ -10,18 +10,19 @@ ADD nodejs-code/app.js /git/nodejs-test/nodejs-code/
 WORKDIR /git/nodejs-test/nodejs-code
 
 # Build code with express-genrator (alternative, just run with node app.js)
-RUN npx express-generator --view=pug --force nodejs-built
+#RUN npx express-generator --view=pug --force nodejs-built
 
 # Set workdir to the built code
-WORKDIR /git/nodejs-test/nodejs-code/nodejs-built
+#WORKDIR /git/nodejs-test/nodejs-code/nodejs-built
 
 # Install new module
-RUN npm install
+#RUN npm install
 
 # Run the code with console Debug mode.
 #  Console Debug mode is  optional.
-ENV DEBUG nodejs-test:*
-ENTRYPOINT npm start
+#ENV DEBUG nodejs-test:*
+#ENTRYPOINT npm start
+ENTRYPOINT node app.js
 
 HEALTHCHECK --interval=5m --timeout=3s \
   CMD curl -f http://localhost:3000/ || exit 1
