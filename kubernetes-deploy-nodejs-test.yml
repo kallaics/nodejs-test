@@ -18,7 +18,7 @@ spec:
       port: 3100
       targetPort: 3000
       protocol: TCP
-      # nodePort: 30000
+      nodePort: 30000
   selector:
     app: nodejs-test
 ---
