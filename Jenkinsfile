@@ -103,19 +103,19 @@ pipeline {
 def notifyOnSuccessful() {
    // Send email to user
   emailext (
+			recipientProviders: [requestor()],
       subject: "Build was successsful: '${env.JOB_NAME}  [${env.BUILD_NUMBER}]'",
       body: """<p>Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
         <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
-      recipientProviders: [[$class: 'DevelopersRecipientProvider']]
     )
 }
 
 def notifyOnFailure() {
    // Send email to user
   emailext (
+      recipientProviders: [requestor()], 
       subject: "Build Failed! '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
       body: """<p>Job: '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
         <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
-      recipientProviders: [[$class: 'DevelopersRecipientProvider']]
     )
 }
