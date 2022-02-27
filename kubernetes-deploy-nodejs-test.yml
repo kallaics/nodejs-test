@@ -1,0 +1,124 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nodejs-test-config
+data:
+  TXT: "Free text, instead of Hello World!"   
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodejs-test
+  labels:
+    app: nodejs-test
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 3100
+      targetPort: 3000
+      protocol: TCP
+      nodePort: 30000
+  selector:
+    app: nodejs-test
+---
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: nodejs-test-nginx-ingress
+    labels:
+      app: nodejs-test
+    annotations:
+      kubernetes.io/ingress.class: "nginx"
+      nginx.ingress.kubernetes.io/rewrite-target: /$1
+  spec:
+    rules:
+      - host: nodejs-test.local
+        http:
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: nodejs-test
+                  port:
+                    number: 3100
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nodejs-test
+spec:
+  replicas: 3
+  selector:
+    app: nodejs-test
+  template:
+    metadata:
+      name: nodejs-test
+      labels:
+        app: nodejs-test
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nodejs-test
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: nodejs-test
+          image: kallaics82/nodejs-code:v1
+          imagePullPolicy: Always
+          env:
+            - name: TXT
+              valueFrom:
+                configMapKeyRef:
+                  name: nodejs-test-config
+                  key: TXT
+          ports:
+            - containerPort: 3000
+              name: nodejs-test
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nodejs-test
+spec:
+  scaleTargetRef:
+    apiVersion: v1
+    kind: ReplicationController
+    name: nodejs-test
+  minReplicas: 3
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
